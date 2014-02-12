@@ -11,6 +11,14 @@ Dependecies
 sudo apt-get install gir1.2-webkit2-3.0
 ```
 
+To Do
+-----
+
+- Add a command line parse to support current flags.
+- Add a default ``http://`` scheme if not present in URI.
+- Add support and flag for optional back & forward buttons.
+
+
 License
 -------
 
