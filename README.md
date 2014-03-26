@@ -1,7 +1,7 @@
 About
 =====
 
-WebDesktop is a fullscreen, jailed, unclosable web browser for Kiosk or alike applications.
+WebDesktop is a fullscreen, jailed, unclosable web browser for kiosks or alike applications.
 
 
 Dependecies
