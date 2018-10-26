@@ -1,23 +1,37 @@
-# -*- coding:utf-8 -*-
+# -*- coding: utf-8 -*-
 #
-# Copyright 2014 Carlos Jenkins <carlos@jenkins.co.cr>
+# Copyright (C) 2018 KuraLabs S.R.L
+# Copyright (C) 2014 Carlos Jenkins
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
 
-from gi.repository import Gtk, WebKit2  # gir1.2-webkit2-3.0
-from os.path import abspath, dirname, join
+"""
+webdesktop main UI class.
+"""
 
-WHERE_AM_I = abspath(dirname(__file__))
+from logging import getLogger
+
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('WebKit2', '4.0')
+
+# noqa for E402: module level import not at top of file
+from gi.repository import Gtk, WebKit2  # noqa
+from pkg_resources import resource_filename # noqa
+
+
+log = getLogger(__name__)
 
 
 class WebDesktop(object):
@@ -25,10 +39,16 @@ class WebDesktop(object):
     Simple WebDesktop class.
 
     Uses WebKit introspected bindings for Python:
-    http://webkitgtk.org/reference/webkit2gtk/stable/
+
+        http://webkitgtk.org/reference/webkit2gtk/stable/
+
+    :param str uri: URI to connect to.
+    :param str name: Name of the application.
+    :param bool menu: Enable or disable the context menu.
+    :param bool jail: Enable or disable the domain jail.
     """
 
-    def __init__(self, uri, menu=False, jail=True):
+    def __init__(self, uri, name='webdesktop', menu=False, jail=True):
         """
         Build GUI
         """
@@ -36,8 +56,9 @@ class WebDesktop(object):
         self.uri = uri
 
         # Build GUI from Glade file
-        self.builder = Gtk.Builder()
-        self.builder.add_from_file(join(WHERE_AM_I, 'webdesktop.ui'))
+        ui = resource_filename(__name__, 'webdesktop.ui')
+        log.debug('Found UI at {}'.format(ui))
+        self.builder = Gtk.Builder.new_from_file(ui)
 
         # Get objects
         go = self.builder.get_object
@@ -75,5 +96,18 @@ class WebDesktop(object):
         uri = self.webview.get_uri()
         if 'WEBKIT_LOAD_STARTED' in ev:
             if not uri.startswith(self.uri):
-                print('Warning: trying to leave jail to {}'.format(uri))
+                log.warning('Warning: trying to leave jail to {}'.format(uri))
                 self.webview.load_uri(self.uri)
+
+    def start(self):
+        """
+        Start the WebDesktop application.
+        """
+        value = Gtk.main()
+        log.debug('Main returned value {}'.format(value))
+        return value
+
+
+__all__ = [
+    'WebDesktop',
+]
